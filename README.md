@@ -1,2 +1,13 @@
-# 150lectureNotes
-LaTeX compilation framework &amp; LaTeX source library for 15-150 M20 lecture slides
+# 150 Lecture Notes, LaTeX Source
+
+## Repository Structure
+
+## Making a Slide Deck
+
+## Code Import
+
+## Color Customization
+
+## Structural Elements
+
+## Acknowledgements
