@@ -1,0 +1,6 @@
+#!/bin/bash
+
+dateString=$(date '+%Y%m%d')
+
+./slice $1
+make www "SRC=slides/$1.tex" "PREFIX=lecture$1" "NUM=$1"

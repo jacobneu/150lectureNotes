@@ -1,0 +1,189 @@
+
+    
+    \usetheme{Madrid}
+    \useinnertheme{rectangles}
+
+    % Macros
+    \newcommand{\paren}[1]{\left(#1\right)}
+
+    \usepackage{caption}
+    \captionsetup{justification=centering,labelformat=empty}
+
+    \newcommand{\codeboxoptions}{frame=shadowbox,rulesepcolor=\color{altBg}}
+% COLOR SETUP
+    % Supply default colors
+    \providecommand{\presentColor}{0C6E2B} % DEFAULT: green
+    \providecommand{\auxColor}{654321} % DEFAULT: brown
+    \providecommand{\bgColor}{ffffff} % DEFAULT: white
+    \providecommand{\darkBg}{bbbbbb} % DEFAULT: gray
+
+    % color of the lambda depends on the boolean useaux
+    \providecommand{\lambdaColor}{\presentColor}
+    \ifuseaux
+      \providecommand{\keywordColor}{\auxColor}
+    \else
+      \providecommand{\keywordColor}{\presentColor}
+    \fi
+
+    % Set the colors
+    \definecolor{presentColor}{HTML}{\presentColor}
+    \definecolor{auxColor}{HTML}{\auxColor}
+    \definecolor{bgColor}{HTML}{\bgColor}
+    \definecolor{darkBg}{HTML}{\darkBg}
+    \definecolor{lambdaColor}{HTML}{\lambdaColor}
+    \definecolor{keywordColor}{HTML}{\keywordColor}
+
+    % presentColor is the beamer theme color, bgColor is the background color
+    \setbeamercolor{background canvas}{bg=bgColor}
+    \usecolortheme[named=presentColor]{structure}
+
+% GRAPHICS IMPORT
+    % For importing graphics of the pdf_tex type (pdfs with uncompiled LaTeX code)
+    \usepackage{import}
+    \usepackage{graphicx}
+    \newcommand{\fig}[2][]{%
+        \begin{figure}[ht]%
+            \centering%
+            \def\svgwidth{8cm}%
+            \import{./img/}{#2.pdf_tex}%
+            \ifx\\#1\\\else\caption{#1}\fi%
+            \label{fig:#2}%
+        \end{figure}%
+    }
+    \newcommand{\figsmall}[3][]{%
+        \begin{figure}[ht]%
+            \centering%
+            \def\svgwidth{#3}%
+            \import{./figures/}{#2.pdf_tex}%
+            \ifx\\#1\\\else\caption{#1}\fi%
+            \label{fig:#2}%
+        \end{figure}%
+    }
+    \newcommand{\figCap}[3][]{%
+        \begin{figure}[ht]%
+            \centering%
+            \def\svgwidth{\columnwidth}%
+            \import{./figures/}{#2.pdf_tex}%
+            \ifx\\#1\\\else\caption{#1}\fi%
+            {\small #3}%
+            \label{fig:#2}%
+        \end{figure}%
+    }
+
+% Import 150 style
+\usepackage{toolbox-core}
+\usefonttheme[onlymath]{serif}
+
+% TITLE PAGE STYLE (SOLID COLOR)
+    
+    % Load tikz packages
+    \usepackage{tikz}
+    \usepackage{pdfrender}
+    \usetikzlibrary{shapes,arrows}
+    \setbeamerfont{stuff}{size=\normalsize\itshape}
+    \setbeamerfont{title}{size=\Huge}
+    \setbeamerfont{subtitle}{size=\Large\normalfont\slshape}
+    \setbeamerfont{lambda}{size=\Huge}
+
+    \setbeamertemplate{title page}{%
+    \begin{tikzpicture}[remember picture,overlay]
+
+        % Main color rectangle
+        \fill[presentColor]
+            ([yshift=15pt]current page.west) rectangle (current page.south east);
+
+            % Backdrop color for lambda (*)
+        \fill[lambdaColor]
+            ([yshift=-40pt]current page.north west) rectangle ([yshift=15pt, xshift=70pt]current page.west);
+
+        % Top-right text
+        \node[anchor=north east]
+            at ([yshift=-15pt]current page.north east) (stuff)
+            {\parbox[t]{.78\paperwidth}{\raggedleft%
+            \usebeamerfont{stuff}\textcolor{gray}
+            {Lecture \LECTNUM\\Principles of Functional Programming\\ Summer 2020}}};
+
+        % Title
+        \node[anchor=west]
+            at ([yshift=-15pt, xshift=20pt]current page.west) (title)
+            {\parbox[t]{\textwidth}{\raggedright%
+            \usebeamerfont{title}\textcolor{white}{%
+                \textpdfrender{
+                    TextRenderingMode=FillStroke,%
+                    FillColor=white,%
+                    LineWidth=.1ex,%
+                }
+            {\inserttitle}}}};%
+
+        % Put the white negative of lambda, so you see the lambda in the color of (*)
+        \node[anchor=west]%
+            at ([yshift=60pt, xshift=-20pt]current page.west) (lambda)%
+            {\includegraphics[width=90pt]{lambda-inv.png}};%
+
+        % Subtitle
+        \node[anchor=west]%
+            at ([yshift=-60pt,xshift=20pt]current page.west) (subtitle)%
+            {\parbox[t]{.6\paperwidth}{\raggedright\usebeamerfont{subtitle}\textcolor{white}{\insertsubtitle}}};%
+    \end{tikzpicture}%
+    }
+
+
+% PICTURE TITLE
+    % Establish \pictureTitle command
+    % USE: \pictureTitle[c]{foo} to load the image foo.* (jpg,png,etc.) as the picture background
+    %      c should be the name of a color (presentColor, auxColor, white, black, red, ...). DEFAULT: white
+    \newcommand{\pictureTitle}[2][white]{%
+
+        \begin{tikzpicture}[remember picture,overlay]
+
+            % Picture (south)
+            \node[anchor=south]
+                at ([yshift=-12pt]current page.south) (bg)
+                {\includegraphics[width=400pt]{#2}};
+            
+            % White background (northeast)
+            \fill[white]
+                ([xshift=72pt]current page.north west) rectangle ([yshift=15pt]current page.east);
+
+            % Background color for lambda, if lambdaColor (west)
+            \ifcolorlambda
+                \fill[lambdaColor]
+                    ([yshift=-40pt]current page.north west) rectangle ([yshift=15pt, xshift=70pt]current page.west);
+            \fi
+
+            % Rectangle to cover up lambdaColor (and/or picture) in the northwest
+            \fill[white]
+                (current page.north west) rectangle ([yshift=-40pt, xshift=73pt]current page.north west);
+
+            % Text (northeast)
+            \node[anchor=north east]
+                at ([yshift=-15pt]current page.north east) (stuff)
+                {\parbox[t]{.78\paperwidth}{\raggedleft%
+                \usebeamerfont{stuff}\textcolor{gray}{Lecture \LECTNUM\\Principles of Functional Programming\\ Summer 2020}}};
+
+            % Title
+            \node[anchor=west]
+                at ([yshift=-30pt, xshift=20pt]current page.west) (title)
+                {\parbox[t]{\textwidth}{\raggedright%
+                \usebeamerfont{title}\textcolor{#1}{%
+                    \textpdfrender{
+                        TextRenderingMode=FillStroke,
+                        FillColor=#1,
+                        LineWidth=.05ex,
+                    }
+                {\inserttitle}}}};
+
+            % Put the white negative of lambda, so you see the lambda in the color of (*)
+            \node[anchor=west]
+                at ([yshift=60pt, xshift=-20pt]current page.west) (lambda)
+                {\includegraphics[width=90pt]{lambda-inv.png}};
+
+            % Subtitle
+            \node[anchor=west]
+                at ([yshift=-60pt,xshift=20pt]current page.west) (subtitle)
+                {\parbox[t]{.6\paperwidth}{\raggedright\usebeamerfont{subtitle}\textcolor{white}{\insertsubtitle}}};
+        \end{tikzpicture}
+        }
+
+
+

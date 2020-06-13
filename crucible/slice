@@ -1,0 +1,36 @@
+#!/bin/bash
+
+lecture=$1
+i=0
+keepGoing=1
+
+if [ -d "code/$lecture/fragments" ];
+then 
+    rm -rf "code/$lecture/fragments"
+fi
+
+rm -f xx*
+
+mkdir "code/$lecture/fragments"
+
+while [ "$keepGoing" -eq 1 ] && [ "$i" -lt 99 ]
+do
+    keepGoing=0;
+    echo "$i"
+    for file in code/$lecture/**;
+    do
+        if [ ! -d "$file" ]; then
+        csplit --silent --suppress-matched "$file" "/(\* \(FRAGMENT\|END\) $i \*)/" "{*}";
+        if [ -s xx01 ];
+        then
+            mv xx01 "code/$lecture/fragments/$i";
+            rm -f xx*
+            keepGoing=1
+        fi
+        fi
+    done
+    i=$((i+1))
+    
+done
+
+rm -f xx*

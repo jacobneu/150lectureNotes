@@ -1,0 +1,249 @@
+%% This latex package provides all the utilities for
+%% 15150 assignments development.
+%% This package is intended to be included in writeup.tex at
+%% problem level.
+%% For a full list of custom commands, check 15150toolbox.md
+%%
+%% @author: Jolin Zhou
+%% @email: jiulingz@andrew.cmu.edu
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{toolbox-reduced}[2020/05/15 Latex toolbox for M20 Lecture Notes]
+\definecolor{auxColor}{HTML}{\auxColor}
+%%%%%%%%%%%%%%%%%%%%%
+%% Robust Commands %%
+%%%%%%%%%%%%%%%%%%%%%
+% used throughout this package
+\RequirePackage{etoolbox}
+\RequirePackage{xparse}
+
+% hyperlink/reference
+\RequirePackage{xcolor}
+
+% graphics
+\RequirePackage{graphicx}
+
+% emphasize
+\usepackage{bm}
+\DeclareTextFontCommand{\emph}{\bfseries\em}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Task related environments %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% environment colors
+\RequirePackage{xcolor}
+\definecolor{task_color}      {RGB}{ 64, 100, 255}
+\definecolor{solution_color}  {RGB}{  0,   0, 128}
+\definecolor{constraint_color}{RGB}{175,   0,   0}
+
+% task environment
+\RequirePackage{framed}
+\providerobustcmd{\attribute}[1]{}
+\newcounter{taskcounter}
+\NewDocumentEnvironment{task}{m}
+{
+  \stepcounter{taskcounter}
+  \textbf{Task \arabic{taskcounter}.}\attribute{#1}
+  \phantomsection
+  \addcontentsline{toc}{subsubsection}{\textcolor{task_color}{\textbf{Task \arabic{taskcounter}.}\texorpdfstring{\attribute{#1}}{}}}
+  \par
+}
+{
+  \ifdef{\loadsolution}
+    {{
+      \color{solution_color}
+      \begin{framed}
+        \textbf{Solution \arabic{taskcounter}.}\par
+        \loadsolution{#1}
+      \end{framed}
+    }}
+    {}
+  \vspace{1em}
+}
+
+% constraint environment
+\newenvironment{constraint}{\color{constraint_color}\textbf{Constraint:}}{}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+%% Code Specification %%
+%%%%%%%%%%%%%%%%%%%%%%%%
+% spec
+\RequirePackage{framed}
+\newrobustcmd{\spec}[4]{
+    \begin{framed}
+    \code{#1 : #2}\par
+    \ifstrempty{#3}{}{\par REQUIRES: #3}
+    \ifstrempty{#4}{}{\par ENSURES: #4}
+    \end{framed}
+}
+
+%%%%%%%%%%%%%%%%%%%%%
+%% Text Formatting %%
+%%%%%%%%%%%%%%%%%%%%%
+% symbols
+\RequirePackage{amssymb, amsmath, amsthm, amsfonts}
+
+\newrobustcmd{\stepsTo}{\Longrightarrow}
+\newrobustcmd{\stepsToIn}[1]{\Longrightarrow^{#1}}
+
+\newrobustcmd{\set}[1]{\left\lbrace #1 \right\rbrace}
+\renewrobustcmd{\emptyset}{\varnothing}
+\newrobustcmd{\Z}{\mathbb{Z}}
+\newrobustcmd{\N}{\mathbb{N}}
+\newrobustcmd{\R}{\mathbb{R}}
+\newrobustcmd{\Q}{\mathbb{Q}}
+
+\newrobustcmd{\W}[2][]{W_{\code{#1}}\left( #2 \right)}
+\renewrobustcmd{\S}[2][]{S_{\code{#1}}\left( #2 \right)}
+
+\renewrobustcmd{\O}[1]{O\left(#1\right)}
+
+\newcommand{\lectureEnd}[1]{%
+    \begin{center}%
+        \colorbox{red}{%
+        \parbox{6cm}{%
+            {\color{white}\begin{center} Lecture ended here on #1. Anything past here will be covered in a future lecture or lab\end{center}}%
+        }%
+    }%
+    \end{center}%
+}
+%%%%%%%%%%%%%%%%%%%%%%
+%% Code Environment %%
+%%%%%%%%%%%%%%%%%%%%%%
+% code style
+\RequirePackage{listings}
+\RequirePackage{lstautogobble}
+\RequirePackage{xcolor}
+
+\newlength{\MaxSizeOfLineNumbers}%
+\settowidth{\MaxSizeOfLineNumbers}{99}% Adjust to maximum number of lines
+\addtolength{\MaxSizeOfLineNumbers}{.5ex}%
+
+\definecolor{background_color}{RGB}{225, 225, 225}
+\definecolor{string_color}    {RGB}{180, 156,   0}
+\definecolor{keyword_color}   {RGB}{ 64, 100, 255}
+\definecolor{comment_color}   {RGB}{  140, 140, 140}
+\definecolor{number_color}    {RGB}{ 84,  84,  84}
+\lstdefinestyle{15150code}{
+    basicstyle=\ttfamily,
+    numberstyle=\tiny\ttfamily\color{number_color},
+    backgroundcolor=\color{background_color},
+    stringstyle=\color{string_color},
+    keywordstyle=\color{keywordColor},
+    commentstyle=\color{comment_color},
+    numbers=left,
+    frame=shadowbox,
+    rulesepcolor=\color{darkBg},
+    linewidth=\textwidth,
+    columns=fixed,
+    tabsize=2,
+    xleftmargin=\MaxSizeOfLineNumbers,
+    breaklines=true,
+    keepspaces=true,
+    showstringspaces=false,
+    captionpos=b,
+    autogobble=true,
+    mathescape=true,
+    literate={~}{{$\thicksim$}}1
+             {~=}{{$\eeq$}}1
+}
+\lstdefinelanguage{sml}{
+    language=ML,
+    morestring=[b]",
+    morecomment=[s]{(*}{*)},
+    morekeywords={
+        bool, char, exn, int, real, string, unit, list, option,
+        EQUAL, GREATER, LESS, NONE, SOME, nil,
+        andalso, orelse, true, false, not,
+        if, then, else, case, of, as,
+        let, in, end, local, val, rec,
+        datatype, type, exception, handle,
+        fun, fn, op, raise, ref,
+        structure, struct, signature, sig, functor,
+        include, open, use, infix, infixr, o, print
+    }
+}
+% code inline
+\newrobustcmd{\code}[2][]{{\sloppy
+\ifmmode
+    \text{\lstinline[language=sml,style=15150code,#1]`#2`}
+\else
+    {\lstinline[language=sml,style=15150code,#1]`#2`}%
+\fi}}
+
+% code block
+\lstnewenvironment{codeblock}[1][]{\lstset{language=sml,style=15150code,numbers=none,#1}}{}
+% code file
+\newrobustcmd{\codefile}[2][]{\lstinputlisting[language=sml,style=15150code,frame=shadowbox,#1]{#2}}
+% Labelled fragment
+\newrobustcmd{\smlFrag}[2][]{\par%
+    \hspace{-3pt}\colorbox{auxColor}{%
+        {\color{white}%
+            \ \LECTNUM.#2\ %
+        }%
+    }%
+    \codefile[#1]{../content/code/\LECTNUM/fragments/#2}%
+}
+\newrobustcmd{\smlFragColor}[3][]{\par%
+    \hspace{-3pt}\colorbox{\ifuseaux auxColor \else presentColor \fi}{%
+        {\color{#1}%
+            \ \LECTNUM.#2\ %
+        }%
+    }%
+    \codefile[#1]{../content/code/\LECTNUM/fragments/#2}%
+}
+\newrobustcmd{\thmBox}[2][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} Thm. #2}%
+    }%
+}
+
+\newrobustcmd{\lemmaBox}[2][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} Lemma #2}%
+    }%
+}
+\newrobustcmd{\proofBox}[2][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} Proof #2}%
+    }%
+}
+\newrobustcmd{\bcBox}[1][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} BC}%
+    }%
+}
+\newrobustcmd{\isBox}[1][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} IS}%
+    }%
+}
+\newrobustcmd{\ihBox}[2][white]{\par%
+    \colorbox{auxColor}{%
+        {\color{#1} IH{#2}}%
+    }%
+}
+
+\newrobustcmd{\closureBox}{\par%
+    \colorbox{purple}{%
+        {\color{white} Closure}%
+    }%
+}
+\newrobustcmd{\smlFragOffset}[3][white]{\par%
+    \hspace{-3pt}\colorbox{\ifuseaux auxColor \else presentColor\fi}{%
+        {\color{#1}%
+            \ \LECTNUM.#2\ %
+        }%
+    }%
+    \codefile[firstnumber=#3]{../content/code/\LECTNUM/fragments/#2}%
+}
+
+\newrobustcmd{\othercodefile}[3][]{\lstinputlisting[language=#3,frame=single,#1]{#2}}
+\newrobustcmd{\nonsmlFrag}[3][white]{\par%
+    \hspace{-3pt}\colorbox{\ifuseaux auxColor \else presentColor\fi }{%
+        {\color{#1}%
+            \ \LECTNUM.#2\ %
+        }%
+    }%
+    \othercodefile{../content/code/\LECTNUM/fragments/#2}{#3}%
+}

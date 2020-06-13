@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ -z $2 ];
+then
+  cp -i slides/template.tex "slides/$1.tex";
+  echo "Copied slides/template.tex to slides/$1.tex";
+else
+  if [ -e "slides/$2.tex" ];
+    then
+      cp -i "slides/$2.tex" "slides/$1.tex";
+      echo "Copied slides/$2.tex to slides/$1.tex";
+    else
+      echo "slides/$2.tex doesn't appear to exist";
+    fi;
+fi
